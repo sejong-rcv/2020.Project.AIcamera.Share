@@ -83,7 +83,7 @@ def return_arguments():
                         )
     parser.add_argument('--print_weights', default=False,
                         help='print weights of every layer')
-     parser.add_argument('--RGB', default=False,
+    parser.add_argument('--RGB', default=False,
                         help='Use RGB for input')
     parser.add_argument('--input_channels', default=3,
                         help='Number of channels in input tensor')

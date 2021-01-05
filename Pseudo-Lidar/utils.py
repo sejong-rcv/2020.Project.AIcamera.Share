@@ -41,7 +41,7 @@ def prepare_dataloader(data_directory, mode, augment_parameters,
         augment_parameters=augment_parameters,
         do_augmentation=do_augmentation,
         size = size)
-    datasets = [KittiLoader(os.path.join(data_directory
+    datasets = [KAISTLoader(os.path.join(data_directory
                             ), mode, transform=data_transform,RGB=RGB)]
 
     dataset = ConcatDataset(datasets)
