@@ -19,13 +19,13 @@ from tqdm import tqdm
 def return_arguments():
     parser = argparse.ArgumentParser(description='PyTorch Monodepth')
 
-    parser.add_argument('--data_dir', default="MTN_data",
+    parser.add_argument('--data_dir', default="Kaist_data",
                         help='path to the dataset folder. \
                         It should contain subfolders with following structure:\
                         "image_02/data" for left images and \
                         "image_03/data" for right images'
                         )
-    parser.add_argument('--val_data_dir', default="MTN_data",
+    parser.add_argument('--val_data_dir', default="Kaist_data",
                         help='path to the validation dataset folder. \
                             It should contain subfolders with following structure:\
                             "image_02/data" for left images and \
