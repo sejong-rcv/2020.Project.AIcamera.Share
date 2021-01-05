@@ -52,7 +52,7 @@ data
 
 ```
 
-# train
+## train
 
 학습과 테스트시 main_monodepth_pytorch.py 를 사용하고 학습시 argument는 다음과 같다. :
  - `data_dir`: 학습 혹은 테스트 데이터 경로
@@ -81,14 +81,14 @@ data
 ```
 bash train.sh
 ```
-# test
+## test
 테스트 argument는 학습과 동일하며 테스트 하기 위한 실행 명령어는 test.sh 에 있으니 그것을 실행 시키면 된다.
 
 ```
 bash test.sh
 ```
 
-## Requirements
+### Requirements
 This code was tested with PyTorch 0.4.1, CUDA 9.1 and Ubuntu 16.04. Other required modules:
 
 ```
@@ -96,5 +96,16 @@ torchvision
 numpy
 matplotlib
 ```
-## Result
+# Result
+
+## 정량적 평가
+
+| model | domain| RMSE | RMSE_log |
+|:-----: | :-----:|:-----: |:-----: |
+| MTN    |   T    | 8.7387 | 0.1933 |
+| Monodepth |   T  |  4.7079 |  0.1988 |
+| Monodepth |   R  |  4.2886 |  0.2038  | 
+
+## 정성적 평가
+
 
