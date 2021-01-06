@@ -108,5 +108,5 @@ matplotlib
 
 ## 정성적 평가
 
-![eval_visualize](./Pseudo-Lidar/images/eval_visualize.png)
+![eval_visualize](images/eval_visualize.png)
 
