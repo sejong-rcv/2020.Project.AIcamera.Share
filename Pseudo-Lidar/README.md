@@ -132,13 +132,14 @@ matplotlib
 ## 정성적 평가
 - 자가 학습 기반 깊이 추정 모델(Pseudo-Lidar)의 정성적 결과
 
-![eval_visualize](images/eval_visualize.png)
+![eval_visualize](images/eval_visualize.png) 왼쪽 칼라영상, 열화상영상, 정답 Disparity 영상, 칼라 영상을 이용한 베이스라인 결과 , 열화상영상을 이용한  베이스라인 결과, 칼라 영상을 이용한 제안된 방법론 결과, 열화상 영상을 이용한 제안한 방법론 결과
 
 -열화상 영상을 이용하여 추정된 깊이 정보를 3D 공간상으로 투영한 정성적 결과
 
-![visualize_Thermal](images/visualize_Thermal.jpg)
+![visualize_Thermal](images/visualize_Thermal.jpg)왼쪽 부터  열화상 영상 , 추정된 깊이 영상,  추정된 Pseudo-Lidar 
 
 -칼라 영상을 이용하여 추정된 깊이 정보를 3D 공간상으로 투영한 정성적 결과
 
-![visualize_Thermal](images/visualize_RGB.jpg)
+![visualize_Thermal](images/visualize_RGB.jpg)왼쪽 부터  칼라 영상 , 추정된 깊이 영상,  추정된 Pseudo-Lidar 
+
 
