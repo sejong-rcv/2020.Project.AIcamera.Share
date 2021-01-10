@@ -117,7 +117,7 @@ matplotlib
 | Monodepth |   칼라  |  4.2886 |  0.2038  | 4.2886 | 0.2038 |
 | Monodepth |   열화상 |  4.7079 |  0.1988 | 4.7079 | 0.1988 |
 
-- 베이스 라인 방법론에 멀티스펙트럴 데이터셋을 적용했을 경우 문제되는 Depth Hall을 줄이기 위해 ㉠(Balanced L1 loss) , ㉡(Smooth L1 Loss) 적용 성능
+- 베이스 라인 방법론에 멀티스펙트럴 데이터셋을 적용했을 경우 문제되는 Depth Hall을 줄이기 위해 Balanced L1 loss , Smooth L1 Loss 적용 성능
 
 | model |  입력영상| RMSE <50| RMLSE<50 | RMSE <80| RMLSE<80 |
 |:-----: | :-----:|:-----: |:-----: |:-----: |:-----: |
