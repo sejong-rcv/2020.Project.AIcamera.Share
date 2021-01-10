@@ -1,9 +1,5 @@
 # Pseudo-Lidar
 
-
-
-# Pseudo-Lidar
-
 ## Dataset
 
 ### KAIST AAAI 2017
@@ -104,7 +100,7 @@ matplotlib
 
 ## 정량적 평가
 
-| model | domain| RMSE | RMLSE |
+| model | domain| RMSE | RMSE_log |
 |:-----: | :-----:|:-----: |:-----: |
 | MTN    |   T    | 8.7387 | 0.1933 |
 | Monodepth |   T  |  4.7079 |  0.1988 |
@@ -112,5 +108,5 @@ matplotlib
 
 ## 정성적 평가
 
-![images/eval_visuzelize](images/eval_visuzelize.png)
+![eval_visualize](images/eval_visualize.png)
 
