@@ -45,6 +45,10 @@ def return_arguments():
                         'resnet18_md or resnet50_md ' + '(default: resnet18)'
                         + 'or torchvision version of any resnet model'
                         )
+    parser.add_argument('--l_type', default='l1',
+                        help='loss type: ' +
+                        'l1 or sl1 or bl1' + '(default: l1)'
+                        )
     parser.add_argument('--pretrained', default=False,
                         help='Use weights of pretrained model'
                         )
@@ -135,7 +139,7 @@ class Model:
             self.loss_function = MonodepthLoss(
                 n=4,
                 SSIM_w=0.85,
-                disp_gradient_w=0.1, lr_w=1).to(self.device)
+                disp_gradient_w=0.1, lr_w=1,l_type=args.l_type).to(self.device)
             self.optimizer = optim.Adam(self.model.parameters(),
                                         lr=args.learning_rate)
             self.val_n_img, self.val_loader = prepare_dataloader(args.val_data_dir, "val",

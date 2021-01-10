@@ -4,13 +4,13 @@ import torch.nn.functional as F
 
 
 class MonodepthLoss(nn.modules.Module):
-    def __init__(self, n=4, SSIM_w=0.85, disp_gradient_w=1.0, lr_w=1.0):
+    def __init__(self, n=4, SSIM_w=0.85, disp_gradient_w=1.0, lr_w=1.0,l_type="l1"):
         super(MonodepthLoss, self).__init__()
         self.SSIM_w = SSIM_w
         self.disp_gradient_w = disp_gradient_w
         self.lr_w = lr_w
         self.n = n
-
+        self.l_type=l_type
     def scale_pyramid(self, img, num_scales):
         scaled_imgs = [img]
         s = img.size()
@@ -140,17 +140,39 @@ class MonodepthLoss(nn.modules.Module):
         disp_right_smoothness = self.disp_smoothness(disp_right_est,
                                                      right_pyramid)
 
-        # L1
-        l1_left = [torch.mean(torch.abs(left_est[i] - left_pyramid[i]))
-                   for i in range(self.n)]
-        l1_right = [torch.mean(torch.abs(right_est[i]
-                    - right_pyramid[i])) for i in range(self.n)]
+
 
         # SSIM
         ssim_left = [torch.mean(self.SSIM(left_est[i],
                      left_pyramid[i])) for i in range(self.n)]
         ssim_right = [torch.mean(self.SSIM(right_est[i],
                       right_pyramid[i])) for i in range(self.n)]
+
+
+
+        # L1 and L-R Consistency
+        if self.l_type == 'sl1':
+           l1_left  = [torch.mean( self.smooth_l1_loss( (left_est[i]-left_pyramid[i]) )) for i in range(self.n)];
+           l1_right = [torch.mean( self.smooth_l1_loss( (right_est[i]-right_pyramid[i]) )) for i in range(self.n)];
+
+           lr_left_loss  = [torch.mean( self.smooth_l1_loss( (right_left_disp[i]-disp_left_est[i]) )) for i in range(self.n)];
+           lr_right_loss = [torch.mean( self.smooth_l1_loss( (left_right_disp[i]-disp_right_est[i]) )) for i in range(self.n)];
+
+        elif self.l_type == 'bl1':
+           l1_left  = [torch.mean( self.balanced_l1_loss( (left_est[i]-left_pyramid[i]) )) for i in range(self.n)];
+           l1_right = [torch.mean( self.balanced_l1_loss( (right_est[i]-right_pyramid[i]) )) for i in range(self.n)];
+
+           lr_left_loss  = [torch.mean( self.balanced_l1_loss( (right_left_disp[i]-disp_left_est[i]) )) for i in range(self.n)];
+           lr_right_loss = [torch.mean( self.balanced_l1_loss( (left_right_disp[i]-disp_right_est[i]) )) for i in range(self.n)];
+
+        else:
+           l1_left = [torch.mean(torch.abs(left_est[i] - left_pyramid[i])) for i in range(self.n)];
+           l1_right = [torch.mean(torch.abs(right_est[i] - right_pyramid[i])) for i in range(self.n)];
+
+           lr_left_loss = [torch.mean(torch.abs(right_left_disp[i] - disp_left_est[i])) for i in range(self.n)]
+           lr_right_loss = [torch.mean(torch.abs(left_right_disp[i] - disp_right_est[i])) for i in range(self.n
+        lr_loss = sum(lr_left_loss + lr_right_loss)
+
 
         image_loss_left = [self.SSIM_w * ssim_left[i]
                            + (1 - self.SSIM_w) * l1_left[i]
@@ -159,14 +181,6 @@ class MonodepthLoss(nn.modules.Module):
                             + (1 - self.SSIM_w) * l1_right[i]
                             for i in range(self.n)]
         image_loss = sum(image_loss_left + image_loss_right)
-
-        # L-R Consistency
-        lr_left_loss = [torch.mean(torch.abs(right_left_disp[i]
-                        - disp_left_est[i])) for i in range(self.n)]
-        lr_right_loss = [torch.mean(torch.abs(left_right_disp[i]
-                         - disp_right_est[i])) for i in range(self.n)]
-        lr_loss = sum(lr_left_loss + lr_right_loss)
-
         # Disparities smoothness
         disp_left_loss = [torch.mean(torch.abs(
                           disp_left_smoothness[i])) / 2 ** i
