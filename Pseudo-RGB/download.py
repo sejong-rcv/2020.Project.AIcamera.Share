@@ -54,3 +54,4 @@ elif args.mode == 'cocostuff':
     save_response_content(response, join(args.dataset_dir, "cocostuff", "train.zip"))
 else:
     print('Error Mode!')
+    #
