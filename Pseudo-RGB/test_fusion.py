@@ -37,6 +37,7 @@ if __name__ == '__main__':
     model.setup_to_test('MTN/THER')#checkpoints dir in 'checkpoints' folder
 
     count_empty = 0
+    
     for data_raw in tqdm(dataset_loader, dynamic_ncols=True):
         # if os.path.isfile(join(save_img_path, data_raw['file_id'][0] + '.png')) is True:
         #     continue
@@ -57,4 +58,5 @@ if __name__ == '__main__':
             full_img_data = util.get_colorization_data(data_raw['full_img'], opt, ab_thresh=0, p=opt.sample_p)
             model.set_forward_without_box(full_img_data)
         model.save_current_imgs(join(save_img_path, data_raw['file_id'][0] + '.png'))
+        
     print('{0} images without bounding boxes'.format(count_empty))
