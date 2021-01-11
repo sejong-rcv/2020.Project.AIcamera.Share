@@ -126,6 +126,7 @@ if __name__ == '__main__':
             if epoch % opt.save_epoch_freq == 0:
                 model.save_fusion_epoch(epoch)
             model.update_learning_rate()
+            
     else:
         print('Error! Wrong stage selection!')
         exit()
