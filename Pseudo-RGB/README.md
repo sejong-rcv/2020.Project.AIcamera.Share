@@ -92,7 +92,7 @@ bash test.sh
 ### Detection 검출 성능 평가
 |  | RGB| Thermal(grey pixel)2RGB | Thermal2RGB | Grey | Thermal |
 |:-----: | :-----:|:-----: |:-----: |:-----: | :-----: |
-| Color information    |   O    | O | O | O | O |
+| Color information    |   O    | O | O | X | X |
 | mAP(%) | 95.46 |  92.74 | 62.01 | 62.81 | 24.61 |
 ## 정성적 결과
 ### Colorization 품질 평가
