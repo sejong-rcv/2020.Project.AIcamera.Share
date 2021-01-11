@@ -127,8 +127,10 @@ LPIPS(Learned Perceptual Image Patch Similarity)란 노이즈, 블러, 압축 �
 - 이는 열화상 영상을 통해 더 나은 컬러 영상을 만들기 위해서 열화상 영상의 밝기를 흑백 영상의 밝기 스타일로 변환해야 함을 의미한다.
 
 ### 정성적 결과
-![그림1.png](image/그림1.png) 1행,2행은 KAIST Multispectral Dataset, 3행,4행은 Sejong Multispectral Dataset을 의미하며, 왼쪽부터 차례대로 Grey, RGB, Y(grey)+CbCr(grey), Y(grey)+CbCr(Thermal), Y(thermal)+CbCr(Thermal), Thermal
+![그림1.png](image/그림1.png) 1행,2행은 KAIST Multispectral Dataset, 3행,4행은 Sejong Multispectral Dataset의 예시이며, 1열부터 차례대로 Grey, RGB, Y(grey)+CbCr(grey), Y(grey)+CbCr(Thermal), Y(thermal)+CbCr(Thermal), Thermal 영상에 해당한다.
 
+- 위에 정성적 결과를 살펴보면, 5열의 Y(Thermal)+CbCr(Thermal) 영상들은 (Y(Thermal))과 (Y(Grey))의 차이로 인하여 열화상 밝기 특성이 강하게 나타나는 것을 볼 수 있으며 특히 3행, 4행의 5열 Sejong Multispectral Dataset과 같이 물체(사람)에 대한 색상 표현에서 열화상 밝기에 컬러 정보가 뚜렷하지 않게 나오는 경향성을 볼 수 있다.
+- 반면 흑백 영상 밝기(Y(Grey))를 사용하는 (Y(Grey)+CbCr(Thermal))과 (Y(Grey)+CbCr(Grey)에 경우 2행 2열, 3열, 4열의 택시처럼 원본 컬러 영상과 추정된 컬러 영상이 완전히 동일하지는 않더라도 택시에 대한 컬러 정보가 자연스럽게 표현된 것으로 볼 때, 영상의 밝기 정보가 칼라 영상 구성에 중요한 요소인 것으로 판단된다. 
 ## Detection 검출 성능 평가
 ### 정량적 결과
 |  | RGB| Thermal(grey pixel)2RGB | Thermal2RGB | Grey | Thermal |
