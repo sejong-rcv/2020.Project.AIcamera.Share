@@ -170,7 +170,7 @@ class MonodepthLoss(nn.modules.Module):
            l1_right = [torch.mean(torch.abs(right_est[i] - right_pyramid[i])) for i in range(self.n)];
 
            lr_left_loss = [torch.mean(torch.abs(right_left_disp[i] - disp_left_est[i])) for i in range(self.n)]
-           lr_right_loss = [torch.mean(torch.abs(left_right_disp[i] - disp_right_est[i])) for i in range(self.n
+           lr_right_loss = [torch.mean(torch.abs(left_right_disp[i] - disp_right_est[i])) for i in range(self.n)]
         lr_loss = sum(lr_left_loss + lr_right_loss)
 
 

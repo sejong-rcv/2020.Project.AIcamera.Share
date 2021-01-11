@@ -1,41 +1,89 @@
 import os
 from PIL import Image
-
+from glob import glob
 from torch.utils.data import Dataset
 
 
-class KAISTLoader(Dataset):
+class KaistLoader(Dataset):
     def __init__(self, root_dir, mode, transform=None,RGB=False):
-        if mode=="val":
-            mode_="test"
+
+        scenes = ['Campus','Residential','Suburb','Urban'];
+        if mode == 'train':
+           rgb_left_dir  = os.path.join(root_dir, 'training/{}/LEFT');
+           rgb_right_dir = os.path.join(root_dir, 'training/{}/RIGHT');
+           thm_left_dir  = os.path.join(root_dir, 'training/{}/THERMAL');
         else:
-            mode_=mode
-        txtpath=os.path.join(root_dir,"txt","%s.txt"%mode_)
-        txt=open(txtpath,"r")
-        self.left_paths=[]
-        self.right_paths=[]
-        self.thermal_paths=[]
-        for line in txt:
-            sp=line.split()
-            self.left_paths.append(os.path.join(root_dir,sp[0]))
-            self.right_paths.append(os.path.join(root_dir,sp[1]))
-            self.thermal_paths.append(os.path.join(root_dir,sp[2]))
-            
+           rgb_left_dir  = os.path.join(root_dir, 'testing/{}/LEFT');
+           rgb_right_dir = os.path.join(root_dir, 'testing/{}/RIGHT');
+           thm_left_dir  = os.path.join(root_dir, 'testing/{}/THERMAL');
+
+        rgb_left_paths, rgb_right_paths, thm_left_paths = [],[],[];
+        for scene in scenes:
+            rgb_left_path = glob( os.path.join( rgb_left_dir.format(scene), '*.jpg') );
+            rgb_left_path = sorted( rgb_left_path );
+            rgb_left_paths += rgb_left_path;
+
+            rgb_right_path = glob( os.path.join( rgb_right_dir.format(scene), '*.jpg') );
+            rgb_right_path = sorted( rgb_right_path );
+            rgb_right_paths += rgb_right_path;
+
+            thm_left_path = glob( os.path.join( thm_left_dir.format(scene), '*.jpg') );
+            thm_left_path = sorted( thm_left_path );
+            thm_left_paths += thm_left_path;
+
+        self.thm_left_paths  = thm_left_paths;
+        self.rgb_left_paths  = rgb_left_paths;
+        self.rgb_right_paths = rgb_right_paths;
         self.transform = transform
         self.mode = mode
         self.RGB=RGB
+
+    def __len__(self):
+        return len(self.thm_left_paths)
+
+    def __getitem__(self, idx):
+        thm_left_image = Image.open(self.thm_left_paths[idx]).convert("RGB");
+        rgb_left_image = Image.open(self.rgb_left_paths[idx]);
+        if self.mode == 'train' or self.mode == 'val':
+            rgb_right_image = Image.open(self.rgb_right_paths[idx])
+            sample = {'left_image': rgb_left_image, 'left_thm_image': thm_left_image,
+                      'right_image': rgb_right_image}
+            if self.transform:
+                sample = self.transform(sample)
+                return sample
+            else:
+                return sample
+        else:
+            if self.transform:
+                if not self.RGB:
+                    left_image = self.transform(thm_left_image)
+                else:
+                    left_image = self.transform(rgb_left_image)
+            return left_image
+
+
+class KittiLoader(Dataset):
+    def __init__(self, root_dir, mode, transform=None):
+        left_dir = os.path.join(root_dir, 'image_02/data/')
+        self.left_paths = sorted([os.path.join(left_dir, fname) for fname\
+                           in os.listdir(left_dir)])
+        if mode == 'train':
+            right_dir = os.path.join(root_dir, 'image_03/data/')
+            self.right_paths = sorted([os.path.join(right_dir, fname) for fname\
+                                in os.listdir(right_dir)])
+            assert len(self.right_paths) == len(self.left_paths)
+        self.transform = transform
+        self.mode = mode
+
 
     def __len__(self):
         return len(self.left_paths)
 
     def __getitem__(self, idx):
         left_image = Image.open(self.left_paths[idx])
-        thermal_image = Image.open(self.thermal_paths[idx]).convert("RGB")
-        
-        if self.mode == 'train'or self.mode == 'val':
+        if self.mode == 'train':
             right_image = Image.open(self.right_paths[idx])
-           
-            sample = {'left_image': left_image, 'right_image': right_image, 'thermal_image': thermal_image}
+            sample = {'left_image': left_image, 'right_image': right_image}
 
             if self.transform:
                 sample = self.transform(sample)
@@ -44,9 +92,5 @@ class KAISTLoader(Dataset):
                 return sample
         else:
             if self.transform:
-                if self.RGB:
-                    left_image = self.transform(left_image)
-                else:
-                    left_image = self.transform(thermal_image)
-                
+                left_image = self.transform(left_image)
             return left_image
