@@ -9,7 +9,6 @@ from IQA_pytorch import SSIM, utils, LPIPSvgg
 from tqdm import tqdm
 import math
 
-
 def PSNR(predict, gt):
     predict = np.asarray(predict)
     gt = np.asarray(gt)
@@ -61,4 +60,3 @@ if __name__ == '__main__':
     print('avg_ssim_score: %.4f' % (ssim_score/len(predict_list)).item())
     print('avg_psnr_score: %.4f' %(psnr_score/len(predict_list)))
     print('avg_lpips_score: %.4f'%(lpips_score/len(predict_list)))
-    
