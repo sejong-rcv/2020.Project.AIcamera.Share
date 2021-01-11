@@ -87,7 +87,11 @@ Sejong Multispectral Dataset은 실내물류창고 내 무인지게차의 장애
 
 ## 평가 메트릭
 - PSNR
-PSNR은 
+- SSIM
+- LPIPS
+PSNR과 SSIM은 영상 복원 측면에서 흔하게 사용되는 평가 메트릭으로, 먼저 PSNR의 경우 생성 또는 복원된 영상의 화질에 대한 손실 정보를 평가한다. SSIM에 경우 PSNR에 달리 인간의 시각적 화질 차이를 고려하여 설계된 평가 방법으로, 영상의 휘도, 대비, 구조 3가지 측면에 대하여 품질을 평가한다. PSNR과 SSIM 모두 값이 높을수록 영상 복원이 잘 되었다고 판단한다.
+LPIPS(Learned Perceptual Image Patch Similarity)란 노이즈, 블러, 압축 등과 같은 전통적인 왜곡 종류와 generator network architecture(layers, skip connection, upsampling method 등), Loss/Learning 등과 같이 CNN 기반의 왜곡등으로 이루어진 데이터 셋을 통하여 영상 패치 기반에 유사성을 학습한 모델로 영상의 복원 정도를 평가하는 메트릭이다. 이 LPIPS는 위에 언급한 PSNR과 SSIM과 달리 값이 낮을수록 원본 영상과 차이가 적다는 것을 의미한다.
+
 ## 정량적 평가
 ### Colorization 품질 평가
 - KAIST Multispectral Dataset
