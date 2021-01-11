@@ -3,6 +3,8 @@
 ## Dataloader
 
 데이터는 아래 구조와 같이 구성되어야만 합니다.
+
+```
 datas
 ├── train
 │   ├─ RGB
@@ -18,6 +20,7 @@ datas
 │   ├─ THER
 │   │   ├── THER_000000000.jpg
 │   │   └── ...
+```
 
 이때 RGB의 영상명이 LEFT로 되어있는데, 이는 KAIST DATASET에서 제공되는 left RGB을 사용하기 때문이므로, 파일이름은 크게 신경 쓸 필요가 없다.
 
@@ -64,6 +67,7 @@ bash test.sh
 ## 정량적 결과
 
 - KAIST2017 Dataset
+
 |  | PSNR↑| SSIM↑ | LPIPS↓ |
 |:-----: | :-----:|:-----: |:-----: |
 | Gray2RGB_ft    |   35.0415    | 0.9692 | 0.0822 |
@@ -71,6 +75,7 @@ bash test.sh
 | Ther_gray2rgb |   34.1562  |  0.9658 |  0.1080  |
 
 - R2T2 Dataset
+
 |  | PSNR↑| SSIM↑ | LPIPS↓ |
 |:-----: | :-----:|:-----: |:-----: |
 | Gray2RGB_ft    |   34.4895    | 0.9519 | 0.0822 |
