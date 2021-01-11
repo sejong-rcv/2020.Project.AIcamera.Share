@@ -5,8 +5,8 @@ class TrainOptions(BaseOptions):
     def initialize(self, parser):
         BaseOptions.initialize(self, parser)
         parser.add_argument('--stage', type=str, default='full', help='only full, instance or fusion')
-        parser.add_argument('--train_color_img_dir', type=str, default='train_data/train2017', help='training rgb images folder')
-        parser.add_argument('--train_thermal_img_dir', type=str, default='train_data/train2017', help='training thermal images folder')
+        parser.add_argument('--train_color_img_dir', type=str, default='datas/train/RGB', help='training rgb images folder')
+        parser.add_argument('--train_thermal_img_dir', type=str, default='datas/train/THER', help='training thermal images folder')
         parser.add_argument('--model', type=str, default='train', help='only train_model need to be used')
         parser.add_argument('--name', type=str, default='coco_mask', help='name of the experiment. It decides where to store samples and models')
         parser.add_argument('--input_ther', action='store_true', help='Choose Image spectrum(RGB or Thermal)')
