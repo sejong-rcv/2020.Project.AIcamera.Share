@@ -82,4 +82,5 @@ def get_box_info(pred_bbox, original_shape, final_size):
     R_pad = final_size - resize_endx
     T_pad = resize_starty
     B_pad = final_size - resize_endy
+    
     return [L_pad, R_pad, T_pad, B_pad, rh, rw]
