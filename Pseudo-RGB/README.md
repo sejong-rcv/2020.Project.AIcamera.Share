@@ -138,9 +138,12 @@ LPIPS(Learned Perceptual Image Patch Similarity)란 노이즈, 블러, 압축 �
 | Color information    |   O    | O | O | X | X |
 | mAP(%) | 95.46 |  92.74 | 62.01 | 62.81 | 24.61 |
 
+- 위에 결과는 Sejong Multispectral Dataset을 이용한 보행자 인식률을 나타내며, RGB 영상으로 학습된 SSD(Single Shot Detector)의 사전학습 모델을 이용하여 평가를 진행하였다.
+- 정량적 결과에 의하면 컬러 영상(RGB)의 보행자 인식 성능 대비 칼라 정보가 없는 흑백 영상(Grey)와 열화상 영상(Thermal)의 보행자 인식 성능이 크게 감소한 것을 확인할 수 있으며, 반대로 컬러 정보를 추정하여 만든 (Y(Grey)+CbCr(Thermal))과 (Y(Thermal)+CbCr(Thermal)에 경우 상대적으로 보행자 인식 성능이 크게 향상된 것을 볼 수 있다. 특히 (Y(Grey)+CbCr(Thermal)의 검출 성능이 원본 컬러 영상의 검출 성능과 2.72%밖에 차이나지 않으며, 이는 열화상 영상으로 추정된 컬러 정보가 원본 영상의 컬러 정보와 매우 유사함을 나타냄과 동시에 물체 검출에서 컬러 정보가 가지는 영향력이 크다는 것을 시사한다.
 ### 정성적 결과
-![그림2.png](image/Detection.png)
+![그림2.png](image/Detection.png) 컬러 추정 연구를 활용한 딥러닝 기반 물체인식기의 정성적 평가 결과로 1열부터 차례대로 Grey, RGB, (Y(Grey)+CbCr(Thermal)), (Y(Thermal)+CbCr(Thermal)), Thermal 영상을 입력으로 한 검출 영상이다.
 
+- 위에 정성적 결과를 살펴보면, 컬러 정보의 유무에 따라 검출의 정확도가 차이나는 것을 확인할 수 있다. 배경과 보행자가 명확히 구분되는 환경에서는 컬러 정보가 없는 흑백 영상에서도 보행자 검출이 잘 되었으나, 1행과 같이 보행자 외에도 다양한 사물이 존재하는 복잡한 상황에서 컬러 정보가 없는 흑백 영상(1행1열)과 열화상 영상(1행5열)은 보행자를 잘 검출하지 못하는 반면, 컬러 정보가 존재하는 RGB(1행2열), (Y(Grey)+Y(Thermal))(1행3열), (Y(Thermal)+CbCr(Thermal))(1행4열)의 경우 보행자를 정확히 인식한다. 이는 컬러 정보가 다양한 사물이 나오는 복잡한 환경에서 물체의 구분력을 나타내는 중요한 정보인 것을 의미한다.
 
 ### Reference
 - 해당 코드는 [Instance aware Colorization](https://github.com/ericsujw/InstColorization)을 베이스로 하여 작성되었음.
