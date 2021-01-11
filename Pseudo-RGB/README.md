@@ -89,38 +89,54 @@ Sejong Multispectral Dataset은 실내물류창고 내 무인지게차의 장애
 - PSNR과 SSIM은 영상 복원 측면에서 흔하게 사용되는 평가 메트릭으로, 먼저 PSNR의 경우 생성 또는 복원된 영상의 화질에 대한 손실 정보를 평가한다. SSIM에 경우 PSNR에 달리 인간의 시각적 화질 차이를 고려하여 설계된 평가 방법으로, 영상의 휘도, 대비, 구조 3가지 측면에 대하여 품질을 평가한다. PSNR과 SSIM 모두 값이 높을수록 영상 복원이 잘 되었다고 판단한다.
 LPIPS(Learned Perceptual Image Patch Similarity)란 노이즈, 블러, 압축 등과 같은 전통적인 왜곡 종류와 generator network architecture(layers, skip connection, upsampling method 등), Loss/Learning 등과 같이 CNN 기반의 왜곡등으로 이루어진 데이터 셋을 통하여 영상 패치 기반에 유사성을 학습한 모델로 영상의 복원 정도를 평가하는 메트릭이다. 이 LPIPS는 위에 언급한 PSNR과 SSIM과 달리 값이 낮을수록 원본 영상과 차이가 적다는 것을 의미한다.
 
-## 정량적 평가
-### Colorization 품질 평가
 
+## Colorization 품질 평가
+## 정량적 평가
 - 먼저 열화상 영상을 이용한 컬러 추정 방법의 베이스 라인 성능을 측정해보고자 흑백 영상을 컬러 영상으로 변환한 결과(Gray2RGB)와 열화상 영상을 컬러 영상으로 변환한 결과(Ther2RGB)를 영상품질 관점에서 비교 분석하였다.
 
 - KAIST Multispectral Dataset
 
-|  | PSNR↑| SSIM↑ | LPIPS↓ |
+| 입력 영상 | 평가 영상 | PSNR↑| SSIM↑ | LPIPS↓ |
 |:-----: | :-----:|:-----:|:-----: |:-----: |
-| Gray2RGB | Y(grey)+CbCr(grey)|   35.0415    | 0.9692 | 0.0822 |
-| Ther2RGB | Y(thermal)+CbCr(thermal)|  27.9761  |  0.4052 |  0.5074 |
+| Grey | Y(grey)+CbCr(grey)|   35.0415    | 0.9692 | 0.0822 |
+| Thermal | Y(thermal)+CbCr(thermal)|  27.9761  |  0.4052 |  0.5074 |
 
 - Sejong Multispectral Dataset
 
-|  | PSNR↑| SSIM↑ | LPIPS↓ |
+| 입력 영상 | 평가 영상 | PSNR↑| SSIM↑ | LPIPS↓ |
 |:-----: | :-----:| :-----:|:-----: |:-----: |
-| Gray2RGB | Y(grey)+CbCr(grey)|   34.4895    | 0.9519 | 0.0822 |
-| Ther2RGB | Y(thermal)+CbCr(thermal)|  27.9214  |  0.4422 |  0.5276 |
+| Grey | Y(grey)+CbCr(grey)|   34.4943    | 0.9520 | 0.0875 |
+| Thermal | Y(thermal)+CbCr(thermal)|  27.9214  |  0.4422 |  0.5276 |
 
 - 위에 결과를 살펴보면, 흑백 영상을 통해 추정된 컬러 영상보다 열화상 영상을 이용하여 추정된 컬러 영상의 성능이 모든 평가 방식에서 부족한 것을 확인할 수 있다. 하지만 이는 컬러 정보로 복원시키는 과정에서 사용되는 흑백 영상과 열화상 영상의 밝기값 차이로 인해 발생한 것으로 판단되며, 실제로 컬러 영상 복원 시 열화상 영상으로 추정된 컬러 정보(CBCR(thermal))에 흑백 영상 밝기(Y(grey))를 사용할 경우 흑백 영상 밝기Y(grey)에 흑백 영상으로 추정된 컬러 정보CbCR(grey)를 합친 결과와 유사한 결과를 얻을 수 있었다.(아래 테이블 참고)
 
+- KAIST Multispectral Dataset
 
-### Detection 검출 성능 평가
+| 입력 영상 | 평가 영상 | PSNR↑| SSIM↑ | LPIPS↓ |
+|:-----: | :-----:| :-----:|:-----: |:-----: |
+| Grey | Y(grey)+CbCr(grey)|   35.0415    | 0.9692 | 0.0822 |
+| Thermal | Y(grey)+CbCr(thermal)|  34.1562  |  0.9658 |  0.1080 |
+
+- Sejong Multispectral Dataset
+
+| 입력 영상 | 평가 영상 | PSNR↑| SSIM↑ | LPIPS↓ |
+|:-----: | :-----:| :-----:|:-----: |:-----: |
+| Grey | Y(grey)+CbCr(grey)|   34.4943    | 0.9520 | 0.0875 |
+| Thermal | Y(grey)+CbCr(thermal)|  32.7555  |  0.9281 |  0.1588 |
+
+- 이는 열화상 영상을 통해 더 나은 컬러 영상을 만들기 위해서 열화상 영상의 밝기를 흑백 영상의 밝기 스타일로 변환해야 함을 의미한다.
+
+### 정성적 결과
+![그림1.png](image/그림1.png) 1행,2행은 KAIST Multispectral Dataset, 3행,4행은 Sejong Multispectral Dataset을 의미하며, 왼쪽부터 차례대로 Grey, RGB, Y(grey)+CbCr(grey), Y(grey)+CbCr(Thermal), Y(thermal)+CbCr(Thermal), Thermal
+
+## Detection 검출 성능 평가
+### 정량적 결과
 |  | RGB| Thermal(grey pixel)2RGB | Thermal2RGB | Grey | Thermal |
 |:-----: | :-----:|:-----: |:-----: |:-----: | :-----: |
 | Color information    |   O    | O | O | X | X |
 | mAP(%) | 95.46 |  92.74 | 62.01 | 62.81 | 24.61 |
-## 정성적 결과
-### Colorization 품질 평가
-![그림1.png](image/그림1.png)
 
-### Detection 검출 성능 평가
+### 정성적 결과
 ![그림2.png](image/Detection.png)
 
 
