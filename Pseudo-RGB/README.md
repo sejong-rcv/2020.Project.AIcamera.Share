@@ -1,5 +1,4 @@
 # Pseudo-RGB
-해당 코드는 [Instance aware Colorization](https://github.com/ericsujw/InstColorization)을 베이스로 하여 작성된 코드이다.
 
 ## Dataloader
 
@@ -104,3 +103,7 @@ bash test.sh
 
 ### Detection 검출 성능 평가
 ![그림2.png](image/Detection.png)
+
+
+### Reference
+- 해당 코드는 [Instance aware Colorization](https://github.com/ericsujw/InstColorization)을 베이스로 하여 작성되었음.
