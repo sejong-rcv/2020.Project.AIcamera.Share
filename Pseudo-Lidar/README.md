@@ -52,8 +52,20 @@ data
 ```
 
 ## train
-
-학습과 테스트시 main_monodepth_pytorch.py 를 사용하고 학습시 argument는 다음과 같다. :
+- 학습하기 위한 간단한 실행 명령어는 train.sh 에 있으며, 데이터 경로를 맞춰주고 train.sh을 실행 시켜주면 학습이 될 것이다.
+   - 이 경우 모델의 입력은 칼라영상이며 loss는 default L1 loss를 사용한다. 
+```
+bash train.sh
+```
+- 열화상 영상을 입력으로 사용하면 다음 명령어를 사용하면 된다.
+```
+python main_monodepth_pytorch.py  --model resnet18_md --model_path models/resnet18_md
+```
+- 열화상 영상을 입력으로 사용하고, Loss를 Smooth L1 loss로 변경해 학습하려명 다음과 같은 명령어를 사용하면 된다. 
+```
+python main_monodepth_pytorch.py  --model resnet18_md --model_path models/resnet18_md_sl1 --l_type sl1
+```
+- 학습과 테스트시 main_monodepth_pytorch.py 를 사용하고 학습시 argument는 다음과 같다. :
  - `data_dir`: 학습 혹은 테스트 데이터 경로
  - `val_data_dir`:  validation 데이터 경로
  - `model_path`: 모델이 저장될 경로와 어떤 모델인지 이름으로 구분
@@ -76,20 +88,8 @@ data
  - `num_workers`: Number of workers to use in dataloader
  - `RGB` : 모델의 입력으로 RGB를 사용할 것인지 아니면 열화상 영상을 사용할 것인지 
 
-- 학습하기 위한 간단한 실행 명령어는 train.sh 에 있으며, 데이터 경로를 맞춰주고 train.sh을 실행 시켜주면 학습이 될 것이다.
-   - 이 경우 모델의 입력은 칼라영상이며 loss는 default L1 loss를 사용한다. 
-```
-bash train.sh
-```
 
-- 열화상 영상을 입력으로 사용하면 다음 명령어를 사용하면 된다.
-```
-python main_monodepth_pytorch.py  --model resnet18_md --model_path models/resnet18_md
-```
-- 열화상 영상을 입력으로 사용하고, Loss를 Smooth L1 loss로 변경해 학습하려명 다음과 같은 명령어를 사용하면 된다. 
-```
-python main_monodepth_pytorch.py  --model resnet18_md --model_path models/resnet18_md_sl1 --l_type sl1
-```
+
 ## test
 테스트 argument는 학습과 동일하며 테스트 하기 위한 실행 명령어는 test.sh 에 있으니 그것을 실행 시키면 된다.
 
