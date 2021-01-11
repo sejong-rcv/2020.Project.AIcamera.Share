@@ -8,7 +8,6 @@ import torch.utils.data as Data
 import torchvision.transforms as transforms
 from image_util import *
 
-
 class Fusion_Testing_Dataset(Data.Dataset):
     def __init__(self, opt, box_num=8):
         self.PRED_BBOX_DIR = '{0}_bbox'.format(opt.test_img_dir)
