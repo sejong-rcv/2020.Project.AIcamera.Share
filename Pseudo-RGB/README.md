@@ -58,7 +58,7 @@ b. a에서 학습한 Full network의 checkpoint를 사용하여 instance Coloriz
 c. 마지막으로 Full network와 Instance network를 fusion한 fusion network를 학습한다.
 
 ## test
-학습된 체크포인트들은 checkpoints/mask 폴더 내에 존재한다. 만약 학습하지 않고 미리 제공된 체크포인트로 평가하려면 해당 드라이브에서 체크포인트를 다운받아 checkpoints/mask 폴더 내에 저장한 후 평가한다.
+학습된 체크포인트들은 checkpoints/mask 폴더 내에 존재한다. 만약 학습하지 않고 미리 제공된 체크포인트로 평가하려면 해당 드라이브[https://drive.google.com/drive/folders/1334v01UOgCG1A8wrDlgaXNcjuM-zjj85?usp=sharing]에서 체크포인트를 다운받아 checkpoints/mask 폴더 내에 저장한 후 평가한다.
 
 아래 명령어를 실행하면 학습된 모델을 이용하여 colorization 된 영상이 생성되며 이는 $DATASET_DIR에 저장된다.
 ```
