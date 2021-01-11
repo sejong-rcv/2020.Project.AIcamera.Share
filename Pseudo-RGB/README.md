@@ -30,6 +30,10 @@ datas
 python sum_image.py --train
 ```
 --train argument를 추가 시 train data만을 불러오며, train argmuent를 제외하면 test data를 불러온다.
+## Install other dependencies
+```
+sh scripts/install.sh
+```
 
 ## train
 
