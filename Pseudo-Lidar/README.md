@@ -105,19 +105,17 @@ torchvision
 numpy
 matplotlib
 ```
+
+
 # Result
-
 ## 정량적 평가
-
 - 칼라 영상(RGB)과 열화상영상(Thermal) 각각을 깊이 추정 모델의 입력 영상으로 사용하여 추정된 깊이 정보의 정확도를 분석
-
 | model |  입력영상| RMSE <50| RMLSE<50 | RMSE <80| RMLSE<80 |
 |:-----: | :-----:|:-----: |:-----: |:-----: |:-----: |
 | Monodepth |   칼라  |  4.2886 |  0.2038  | 4.2886 | 0.2038 |
 | Monodepth |   열화상 |  4.7079 |  0.1988 | 4.7079 | 0.1988 |
 
 - 베이스 라인 방법론에 멀티스펙트럴 데이터셋을 적용했을 경우 문제되는 Depth Hall을 줄이기 위해 Balanced L1 loss , Smooth L1 Loss 적용 성능
-
 | model |  입력영상| RMSE <50| RMLSE<50 | RMSE <80| RMLSE<80 |
 |:-----: | :-----:|:-----: |:-----: |:-----: |:-----: |
 | Monodepth |   칼라  |  4.2886 |  0.2038  | 4.2886 | 0.2038 |
@@ -127,18 +125,13 @@ matplotlib
 | Monodepth+Balanced L1 loss |   열화상  |  4.7470 |  0.1941  | 5.8399 | 0.2058 |
 | Monodepth+Smooth L1 loss |   열화상 |  4.4529 |  0.1830 | 5.1450 | 0.1897 |
 
-- 
+
 ## 정성적 평가
 - 자가 학습 기반 깊이 추정 모델(Pseudo-Lidar)의 정성적 결과
-
 ![eval_visualize](images/eval_visualize.png) (그림 1) 왼쪽 칼라영상, 열화상영상, 정답 Disparity 영상, 칼라 영상을 이용한 베이스라인 결과 , 열화상영상을 이용한  베이스라인 결과, 칼라 영상을 이용한 제안된 방법론 결과, 열화상 영상을 이용한 제안한 방법론 결과
-
--열화상 영상을 이용하여 추정된 깊이 정보를 3D 공간상으로 투영한 정성적 결과
-
+- 열화상 영상을 이용하여 추정된 깊이 정보를 3D 공간상으로 투영한 정성적 결과
 ![visualize_Thermal](images/visualize_Thermal.jpg) (그림 2) 왼쪽 부터  열화상 영상 , 추정된 깊이 영상,  추정된 Pseudo-Lidar 
-
--칼라 영상을 이용하여 추정된 깊이 정보를 3D 공간상으로 투영한 정성적 결과
-
+- 칼라 영상을 이용하여 추정된 깊이 정보를 3D 공간상으로 투영한 정성적 결과
 ![visualize_Thermal](images/visualize_RGB.jpg) (그림 3) 왼쪽 부터  칼라 영상 , 추정된 깊이 영상,  추정된 Pseudo-Lidar 
 
 
