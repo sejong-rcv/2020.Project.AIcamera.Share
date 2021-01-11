@@ -12,11 +12,19 @@ def image_transforms(mode='train', augment_parameters=[0.8, 1.2, 0.5, 2.0, 0.8, 
             ToTensor(train=True),
             AugmentImagePair(augment_parameters, do_augmentation)
         ])
+        """
+        data_transform = transforms.Compose([
+            ResizeImage(train=True, size=size),
+            RandomFlip(do_augmentation),
+            ToTensor(train=True),
+            AugmentImagePair(augment_parameters, do_augmentation)
+        ])
+        """
         return data_transform
     elif mode == 'val':
         data_transform = transforms.Compose([
             ResizeImage(train=True, size=size),
-            ToTensor(train=True),      
+            ToTensor(train=True),
         ])
         return data_transform
     elif mode == 'test':
@@ -42,12 +50,15 @@ class ResizeImage(object):
         if self.train:
             left_image = sample['left_image']
             right_image = sample['right_image']
-            thermal_image = sample['thermal_image']
-            
             new_right_image = self.transform(right_image)
             new_left_image = self.transform(left_image)
-            new_thermal_image= self.transform(thermal_image)
-            sample = {'left_image': new_left_image, 'right_image': new_right_image,"thermal_image":new_thermal_image}
+            if 'left_thm_image' in sample:
+               left_thm_image     = sample['left_thm_image']
+               new_left_thm_image = self.transform(left_thm_image)
+               sample = {'left_image': new_left_image, 'right_image': new_right_image,
+                         'left_thm_image': left_thm_image}
+            else:
+               sample = {'left_image': new_left_image, 'right_image': new_right_image}
         else:
             left_image = sample
             new_left_image = self.transform(left_image)
@@ -70,14 +81,15 @@ class ToTensor(object):
         if self.train:
             left_image = sample['left_image']
             right_image = sample['right_image']
-            thermal_image = sample['thermal_image']
-            
             new_right_image = self.transform(right_image)
             new_left_image = self.transform(left_image)
-            new_thermal_image= self.transform(thermal_image)
-            
-            sample = {'left_image': new_left_image,
-                      'right_image': new_right_image,"thermal_image":new_thermal_image}
+            if 'left_thm_image' in sample:
+               left_thm_image     = sample['left_thm_image']
+               new_left_thm_image = self.transform(left_thm_image)
+               sample = {'left_image': new_left_image, 'right_image': new_right_image,
+                         'left_thm_image': new_left_thm_image}
+            else:
+               sample = {'left_image': new_left_image, 'right_image': new_right_image}
         else:
             left_image = sample
             sample = self.transform(left_image)
@@ -92,16 +104,25 @@ class RandomFlip(object):
     def __call__(self, sample):
         left_image = sample['left_image']
         right_image = sample['right_image']
-        thermal_image = sample['thermal_image']
-            
         k = np.random.uniform(0, 1, 1)
         if self.do_augmentation:
-            if k > 0.5:
-                fliped_left = self.transform(right_image)
-                fliped_right = self.transform(left_image)
-                sample = {'left_image': fliped_left, 'right_image': fliped_right}
+           if k > 0.5:
+              fliped_left = self.transform(right_image)
+              fliped_right = self.transform(left_image)
+              if 'left_thm_image' in sample:
+                 left_thm_image     = sample['left_thm_image']
+                 flipped_left_thm_image = self.transform(left_thm_image)
+                 sample = {'left_image': fliped_left, 'right_image': fliped_right,
+                           'left_thm_image': flipped_left_thm_image}
+              else:
+                 sample = {'left_image': new_left_image, 'right_image': new_right_image}
         else:
-            sample = {'left_image': left_image, 'right_image': right_image}
+           if 'left_thm_image' in sample:
+              left_thm_image     = sample['left_thm_image']
+              sample = {'left_image': left_image, 'right_image': right_image,
+                        'left_thm_image': left_thm_image}
+           else:
+              sample = {'left_image': left_image, 'right_image': right_image}
         return sample
 
 
@@ -114,17 +135,17 @@ class AugmentImagePair(object):
         self.brightness_high = augment_parameters[3]  # 2.0
         self.color_low = augment_parameters[4]  # 0.8
         self.color_high = augment_parameters[5]  # 1.2
+
         self.thm_gamma_low       = 0.5;
         self.thm_gamma_high      = 1.5;
+
     def __call__(self, sample):
-        left_image = sample['left_image']
+        left_image  = sample['left_image']
         right_image = sample['right_image']
-        #thermal_image = sample['thermal_image']
-        
         p = np.random.uniform(0, 1, 1)
         if self.do_augmentation:
-            if 'thermal_image' in sample:
-              left_thm_image     = sample['thermal_image']
+           if 'left_thm_image' in sample:
+              left_thm_image     = sample['left_thm_image']
               if p > 0.1:
                  # randomly photometric correction
                  thm_random_gamma = np.random.uniform(self.thm_gamma_low, self.thm_gamma_high)
@@ -134,8 +155,8 @@ class AugmentImagePair(object):
                  left_thm_image   = torch.clamp(left_thm_image, 0, 1)
 
               sample = {'left_image': left_image, 'right_image': right_image,
-                        'thermal_image': left_thm_image}
-            else:
+                        'left_thm_image': left_thm_image}
+           else:
               if p > 0.5:
                  # randomly shift gamma
                  random_gamma = np.random.uniform(self.gamma_low, self.gamma_high)
@@ -158,12 +179,11 @@ class AugmentImagePair(object):
                  right_image_aug = torch.clamp(right_image_aug, 0, 1)
 
                  sample = {'left_image': left_image_aug, 'right_image': right_image_aug}
-
         else:
-            if 'thermal_image' in sample:
-              left_thm_image     = sample['thermal_image']
+           if 'left_thm_image' in sample:
+              left_thm_image     = sample['left_thm_image']
               sample = {'left_image': left_image, 'right_image': right_image,
-                        'thermal_image': left_thm_image}
-            else:
+                        'left_thm_image': left_thm_image}
+           else:
               sample = {'left_image': left_image, 'right_image': right_image}
         return sample

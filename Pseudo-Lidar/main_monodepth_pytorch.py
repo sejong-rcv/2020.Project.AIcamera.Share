@@ -2,37 +2,43 @@ import argparse
 import time
 import torch
 import numpy as np
+import os
 import torch.optim as optim
 
 # custom modules
 
 from loss import MonodepthLoss
 from utils import get_model, to_device, prepare_dataloader
-import scipy.io
+
 # plot params
-import os
+import scipy.io
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 mpl.rcParams['figure.figsize'] = (15, 10)
-import cv2
+
 from tqdm import tqdm
 def return_arguments():
     parser = argparse.ArgumentParser(description='PyTorch Monodepth')
 
-    parser.add_argument('--data_dir', default="Kaist_data",
+    parser.add_argument('--data_dir',
+                        default='./Kaist_data',
                         help='path to the dataset folder. \
                         It should contain subfolders with following structure:\
                         "image_02/data" for left images and \
                         "image_03/data" for right images'
                         )
-    parser.add_argument('--val_data_dir', default="Kaist_data",
+    parser.add_argument('--val_data_dir',
+                        default='./Kaist_data',
                         help='path to the validation dataset folder. \
                             It should contain subfolders with following structure:\
                             "image_02/data" for left images and \
                             "image_03/data" for right images'
                         )
-    parser.add_argument('--model_path', default="models",help='path to the trained model')
-    parser.add_argument('--output_directory', default="models",
+    parser.add_argument('--model_path',
+                        default='models/resnet18-5c106cde.pth',
+                        help='path to the trained model')
+    parser.add_argument('--output_directory',
+                        default='save/baseline',
                         help='where save dispairities\
                         for tested images'
                         )
@@ -45,10 +51,6 @@ def return_arguments():
                         'resnet18_md or resnet50_md ' + '(default: resnet18)'
                         + 'or torchvision version of any resnet model'
                         )
-    parser.add_argument('--l_type', default='l1',
-                        help='loss type: ' +
-                        'l1 or sl1 or bl1' + '(default: l1)'
-                        )
     parser.add_argument('--pretrained', default=False,
                         help='Use weights of pretrained model'
                         )
@@ -56,7 +58,7 @@ def return_arguments():
                         help='mode: train or test (default: train)')
     parser.add_argument('--epochs', default=100,
                         help='number of total epochs to run')
-    parser.add_argument('--learning_rate', default=5e-4,
+    parser.add_argument('--learning_rate', default=5e-3,
                         help='initial learning rate (default: 1e-4)')
     parser.add_argument('--batch_size', default=8,
                         help='mini-batch size (default: 256)')
@@ -87,13 +89,21 @@ def return_arguments():
                         )
     parser.add_argument('--print_weights', default=False,
                         help='print weights of every layer')
-    parser.add_argument('--RGB', default=False,
-                        help='Use RGB for input')
     parser.add_argument('--input_channels', default=3,
                         help='Number of channels in input tensor')
-    parser.add_argument('--num_workers', default=4,type=int, 
+    parser.add_argument('--num_workers', default=8,
                         help='Number of workers in dataloader')
     parser.add_argument('--use_multiple_gpu', default=True)
+    ## --additional options,
+    parser.add_argument('--do_mult', default=True,
+                        help='do MTN or not')
+    parser.add_argument('--RGB', default=False,
+                        help='do MTN or not')
+    parser.add_argument('--l_type', default='l1',
+                        help='loss type: sl1, bl1, and l1 (default: l1)')
+    parser.add_argument('--model_output_directory',
+                        default='model_output/baseline',
+                        help='where save models')
     args = parser.parse_args()
     return args
 
@@ -104,7 +114,7 @@ def adjust_learning_rate(optimizer, epoch, learning_rate):
 
     if epoch >= 60 and epoch < 75:
         lr = learning_rate / 2
-    elif epoch >= 40:
+    elif epoch >= 75:
         lr = learning_rate / 4
     else:
         lr = learning_rate
@@ -135,20 +145,32 @@ class Model:
         if args.use_multiple_gpu:
             self.model = torch.nn.DataParallel(self.model)
 
+        self.model_output_directory = self.args.model_output_directory;
+        if not os.path.exists( self.model_output_directory ):
+           os.makedirs( self.model_output_directory );
+
+        self.save_model_name = os.path.basename( self.args.model_path ).split('.')[0];
+
+
         if args.mode == 'train':
             self.loss_function = MonodepthLoss(
                 n=4,
                 SSIM_w=0.85,
-                disp_gradient_w=0.1, lr_w=1,l_type=args.l_type).to(self.device)
+                disp_gradient_w=0.1, lr_w=1, l_type=self.args.l_type).to(self.device)
             self.optimizer = optim.Adam(self.model.parameters(),
                                         lr=args.learning_rate)
-            self.val_n_img, self.val_loader = prepare_dataloader(args.val_data_dir, "val",
+            if args.do_mult:
+               _mode = 'val';
+            else:
+               _mode = args.mode;
+            self.val_n_img, self.val_loader = prepare_dataloader(args.val_data_dir, _mode,
                                                                  args.augment_parameters,
                                                                  False, args.batch_size,
                                                                  (args.input_height, args.input_width),
                                                                  args.num_workers)
         else:
             self.model.load_state_dict(torch.load(args.model_path))
+            #import pdb;pdb.set_trace()
             args.augment_parameters = None
             args.do_augmentation = False
             args.batch_size = 1
@@ -162,7 +184,6 @@ class Model:
                                                      args.do_augmentation, args.batch_size,
                                                      (args.input_height, args.input_width),
                                                      args.num_workers,RGB=args.RGB)
-
 
         if 'cuda' in self.device:
             torch.cuda.synchronize()
@@ -178,42 +199,55 @@ class Model:
         self.model.eval()
         for data in self.val_loader:
             data = to_device(data, self.device)
-            left = data['left_image']
-            right = data['right_image']
-            thermal = data['thermal_image']
-            if self.args.RGB:
-                disps = self.model(left)
+            if self.args.do_mult:
+               left_rgb  = data['left_image'];
+               right     = data['right_image']
+               left      = data['left_thm_image'];
+               loss_list = [left_rgb, right];
             else:
-                disps = self.model(thermal)
-            loss = self.loss_function(disps, [left, right])
+               left      = data['left_image'];
+               right     = data['right_image'];
+               loss_list = [left, right];
+            if self.args.RGB:
+                disps = self.model(left_rgb)
+            else:
+                disps = self.model(left)
+
+            loss = self.loss_function(disps, loss_list)
             val_losses.append(loss.item())
             running_val_loss += loss.item()
 
         running_val_loss /= self.val_n_img / self.args.batch_size
         print('Val_loss:', running_val_loss)
-        
+
         for epoch in range(self.args.epochs):
             if self.args.adjust_lr:
-                adjust_learning_rate(self.optimizer, epoch,
-                                     self.args.learning_rate)
+               adjust_learning_rate(self.optimizer, epoch,
+                                    self.args.learning_rate)
             c_time = time.time()
             running_loss = 0.0
             self.model.train()
             for data in tqdm(self.loader):
                 # Load data
                 data = to_device(data, self.device)
-                left = data['left_image']
-                right = data['right_image']
-                thermal = data['thermal_image']
-            
+
+                if self.args.do_mult:
+                   left_rgb  = data['left_image'];
+                   right     = data['right_image']
+                   left      = data['left_thm_image'];
+                   loss_list = [left_rgb, right];
+                else:
+                   left      = data['left_image'];
+                   right     = data['right_image'];
+                   loss_list = [left, right];
+
                 # One optimization iteration
                 self.optimizer.zero_grad()
                 if self.args.RGB:
-                    disps = self.model(left)
+                    disps = self.model(left_rgb)
                 else:
-                    disps = self.model(thermal)
-                    
-                loss = self.loss_function(disps, [left, right])
+                    disps = self.model(left)
+                loss = self.loss_function(disps, loss_list)
                 loss.backward()
                 self.optimizer.step()
                 losses.append(loss.item())
@@ -259,15 +293,21 @@ class Model:
             self.model.eval()
             for data in self.val_loader:
                 data = to_device(data, self.device)
-                left = data['left_image']
-                right = data['right_image']
-                thermal = data['thermal_image']
-            
-                if self.args.RGB:
-                    disps = self.model(left)
+
+                if self.args.do_mult:
+                   left_rgb  = data['left_image'];
+                   right     = data['right_image']
+                   left      = data['left_thm_image'];
+                   loss_list = [left_rgb, right];
                 else:
-                    disps = self.model(thermal)
-                loss = self.loss_function(disps, [left, right])
+                   left      = data['left_image'];
+                   right     = data['right_image'];
+                   loss_list = [left, right];
+                if self.args.RGB:
+                    disps = self.model(left_rgb)
+                else:
+                    disps = self.model(left)
+                loss = self.loss_function(disps, loss_list)
                 val_losses.append(loss.item())
                 running_val_loss += loss.item()
 
@@ -285,13 +325,13 @@ class Model:
                 round(time.time() - c_time, 3),
                 's',
                 )
-            self.save(self.args.model_path + '_last.pth')
+            self.save( os.path.join( self.model_output_directory, self.save_model_name+'_last.pth'));
             if running_val_loss < best_val_loss:
-                self.save(self.args.model_path + '_cpt.pth')
+                self.save( os.path.join( self.model_output_directory, self.save_model_name+'_cpt.pth'));
                 best_val_loss = running_val_loss
                 print('Model_saved')
 
-        print ('Finished Training. Best loss:', best_val_loss)
+        print ('Finished Training. Best loss:', best_loss)
         self.save(self.args.model_path)
 
     def save(self, path):
@@ -307,24 +347,25 @@ class Model:
                                dtype=np.float32)
         disparities_pp = np.zeros((self.n_img,
                                   self.input_height, self.input_width),
-                                  dtype=np.float32)
+                                  dtype=np.float32);
         with torch.no_grad():
             for (i, data) in enumerate(self.loader):
                 # Get the inputs
                 data = to_device(data, self.device)
                 left = data.squeeze()
                 # Do a forward pass
-                disps = self.model(left)
+                disps    = self.model(left)
                 disp = disps[0][:, 0, :, :].unsqueeze(1)
                 disparities[i] = disp[0].squeeze().cpu().numpy()
                 disparities_pp[i] = \
                     post_process_disparity(disps[0][:, 0, :, :]\
                                            .cpu().numpy())
-
         np.save(self.output_directory + '/disparities.npy', disparities)
         np.save(self.output_directory + '/disparities_pp.npy',
                 disparities_pp)
+
         print('Finished Testing')
+
     def viz(self):
         self.model.eval()
 
@@ -335,16 +376,10 @@ class Model:
         cval.append( cval[-1] );
         cval = np.array( cval );
 
-        max_depth = 80;
+        max_depth = 50;
         min_depth = 1;
         min_disp  = 1;
         def compute_depth_errors(gt, pred):
-            """Computation of error metrics between predicted and ground truth depths
-            """
-            # thresh = torch.max((gt / pred), (pred / gt))
-            # a1 = (thresh < 1.25     ).float().mean()
-            # a2 = (thresh < 1.25 ** 2).float().mean()
-            # a3 = (thresh < 1.25 ** 3).float().mean()
 
             rmse = (gt - pred) ** 2
             rmse = np.sqrt(rmse.mean())
@@ -356,9 +391,10 @@ class Model:
 
             sq_rel = np.mean((gt - pred) ** 2 / gt)
 
-            return abs_rel, sq_rel, rmse, rmse_log#, a1, a2, a3
+            return abs_rel, sq_rel, rmse, rmse_log
 
         def disp2depth( disp, max_disp ):
+
             disp[ disp < min_disp ] = min_disp;
             depth = (3233.93339530 * 0.245) / disp;
             depth[depth < min_depth] = min_depth;
@@ -383,10 +419,10 @@ class Model:
 
         if not os.path.exists(self.output_directory):
            os.makedirs( self.output_directory );
-        txt=txt_depth=open("MTN_data/txt/test_depth.txt","r")
+        txt=txt_depth=open("Kaist_data/txt/test_depth.txt","r")
         depthdata=[]
         for line in txt:
-            depthdata.append(os.path.join("MTN_data",line[:-1]))
+            depthdata.append(os.path.join("Kaist_data",line[:-1]))
         abs_rels, sq_rels, rmses, rmse_logs =[],[],[],[]
         with torch.no_grad():
             for (i, data) in enumerate(tqdm(self.loader)):
@@ -402,23 +438,20 @@ class Model:
                 disp     = disps[0][:, 0, :, :].unsqueeze(1)
                 disp     = disp[0].squeeze().cpu().numpy()
                 disp_pp  = post_process_disparity(disps[0][:, 0, :, :].cpu().numpy())
-                #disp     = disp *1280#* disp_pp.shape[1];
-                disp_pp  = disp_pp *1280# disp_pp.shape[1];
-                #depth    = disp2depth( disp, 0.1*disp_pp.shape[1] );
+                disp     = disp *1280
+                disp_pp  = disp_pp *1280
+                
+                depth    = disp2depth( disp, 0.1*disp_pp.shape[1] );
                 depth_pp = disp2depth( disp_pp, 0.1*disp_pp.shape[1] );
                 left     = left[0].permute((1,2,0)).cpu().numpy() * 255.;
                 abs_rel, sq_rel, rmse, rmse_log=compute_depth_errors(Depth,depth_pp)
- 
                 abs_rels.append(abs_rel)
                 sq_rels.append(sq_rel)
                 rmses.append(rmse)
                 rmse_logs.append(rmse_log)
-                
-                depth_pp=colormap(depth_pp)
-                Depth=colormap(Depth)
+                left = left[:,:,[2,1,0]];
                 viz      = np.concatenate( (left, Depth, depth_pp), 1 );
                 cv2.imwrite(os.path.join( self.output_directory, '%06d.jpg' %(i)), viz);
-                
         print("abs_rel: ",np.array(abs_rels).mean()," sq_rels: ",np.array(sq_rels).mean()," rmses: ",np.array(rmses).mean()," rmse_logs: ",np.array(rmse_logs).mean())
         save_folder=self.output_directory
         pathIn=self.output_directory
@@ -426,11 +459,9 @@ class Model:
         fps = 10
         frame_array = []
         for idx , path in enumerate(os.listdir(pathIn)) :
-            
             if path[0]==".":
                 continue
             if "npy" in path:
-                #import pdb;pdb.set_trace()
                 continue
             img = cv2.imread(os.path.join(pathIn,path))
             try:
@@ -448,6 +479,7 @@ class Model:
         print("Done")
         print('Finished Testing')
 
+
 def main():
     args = return_arguments()
     if args.mode == 'train':
@@ -455,7 +487,6 @@ def main():
         model.train()
     elif args.mode == 'test':
         model_test = Model(args)
-#         model_test.test()
         model_test.viz()
 
 if __name__ == '__main__':

@@ -4,8 +4,8 @@ import os
 from torch.utils.data import DataLoader, ConcatDataset
 
 
-from models_resnet import Resnet18_md, Resnet50_md, ResnetModel,Resnet18_md_v2
-from data_loader import KAISTLoader
+from models_resnet import Resnet18_md, Resnet18_md_v2, Resnet50_md, ResnetModel
+from data_loader import KittiLoader, KaistLoader
 from transforms import image_transforms
 
 def to_device(input, device):
@@ -41,11 +41,14 @@ def prepare_dataloader(data_directory, mode, augment_parameters,
         augment_parameters=augment_parameters,
         do_augmentation=do_augmentation,
         size = size)
-    datasets = [KAISTLoader(os.path.join(data_directory
-                            ), mode, transform=data_transform,RGB=RGB)]
-
-    dataset = ConcatDataset(datasets)
-    n_img = len(dataset)
+    """
+    datasets = [KittiLoader(os.path.join(data_directory,
+                            data_dir), mode, transform=data_transform)
+                            for data_dir in data_dirs] ;
+    """
+    datasets = [KaistLoader(data_directory, mode, transform=data_transform,RGB=RGB)]
+    dataset  = ConcatDataset(datasets)
+    n_img    = len(dataset)
     print('Use a dataset with', n_img, 'images')
     if mode == 'train':
         loader = DataLoader(dataset, batch_size=batch_size,
