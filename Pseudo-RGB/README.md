@@ -1,8 +1,9 @@
 # Pseudo-RGB
+해당 코드는 [Instance aware Colorization](https://github.com/ericsujw/InstColorization)을 베이스로 하여 작성된 코드이다.
 
 ## Dataloader
 
-데이터는 아래 구조와 같이 구성되어야만 합니다.
+데이터는 아래 구조와 같이 구성되어야만 한다.
 
 ```
 datas
@@ -29,7 +30,6 @@ datas
 python sum_image.py --train
 ```
 --train argument를 추가 시 train data만을 불러오며, train argmuent를 제외하면 test data를 불러온다.
-
 
 ## train
 
