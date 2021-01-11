@@ -52,5 +52,3 @@ for i,line in enumerate(tqdm(f)):
 
     call(['cp','-p',join(DATASET_DIR,ther),join(save_path,'THER')])
     call(['cp','-p',join(DATASET_DIR,rgb), join(save_path,'RGB')])
-
-    
