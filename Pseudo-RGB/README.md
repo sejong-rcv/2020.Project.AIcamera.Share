@@ -74,7 +74,7 @@ test_mask.sh 파일에 INPUT_DIR을 example로 변경 후 아래 명령어를 �
 bash test.sh
 ```
 ## 정량적 결과
-
+### Colorization 품질 평가
 - KAIST2017 Dataset
 
 |  | PSNR↑| SSIM↑ | LPIPS↓ |
@@ -89,6 +89,13 @@ bash test.sh
 | Gray2RGB    |   34.4895    | 0.9519 | 0.0822 |
 | Ther2RGB |  27.9214  |  0.4422 |  0.5276 |
 
+### Detection 검출 성능 평가
+|  | RGB| Thermal(grey pixel)2RGB | Thermal2RGB | Grey | Thermal |
+|:-----: | :-----:|:-----: |:-----: |:-----: | :-----: |
+| Color information    |   O    | O | O | O | O |
+| mAP(%) | 95.46 |  92.74 | 62.01 | 62.81 | 24.61 |
 ## 정성적 결과
-
+### Colorization 품질 평가
 ![그림1.png](image/그림1.png)
+
+### Detection 검출 성능 평가
