@@ -68,7 +68,11 @@ bash test.sh
 ```
 python eval.py
 ```
-
+##Demo
+test_mask.sh 파일에 INPUT_DIR을 example로 변경 후 아래 명령어를 실행하면 example image에 대한 Colorization을 사용가능하다.
+```
+bash test.sh
+```
 ## 정량적 결과
 
 - KAIST2017 Dataset
