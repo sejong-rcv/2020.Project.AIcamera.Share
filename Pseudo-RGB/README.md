@@ -99,3 +99,4 @@ bash test.sh
 ![그림1.png](image/그림1.png)
 
 ### Detection 검출 성능 평가
+![Detection.png](image/그림2.png)
