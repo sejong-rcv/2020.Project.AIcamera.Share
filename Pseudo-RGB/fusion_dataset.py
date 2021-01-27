@@ -161,8 +161,8 @@ class Training_Instance_Dataset(Data.Dataset):
         startx, starty, endx, endy = pred_bbox[index_list[0]]
 
         output = {}
-        output['gt_img'] = self.transforms(gt_img)
-        output['input_img'] = self.transforms(input_img)
+        output['gt_img'] = self.transforms(gt_img.crop((startx,starty,endx,endy))
+        output['input_img'] = self.transforms(input_img.crop((startx,starty,endx,endy))
 
         return output
 
